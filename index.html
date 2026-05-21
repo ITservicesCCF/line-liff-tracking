@@ -37,20 +37,7 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const channel = urlParams.get('channel') || 'Unknown';
 
-                    // 4. ยิงข้อมูลไปที่ Webhook ของ Make.com 
-                    // (เปลี่ยน URL ตรงนี้ให้เป็น Webhook ของคุณใน Make)
-                    await fetch('https://hook.eu1.make.com/26c8dgg1ywhamvyluktcjlogupqrdjxz', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: profile.userId,
-                            displayName: profile.displayName,
-                            pictureUrl: profile.pictureUrl,
-                            channel: channel
-                        })
-                    });
-
-                    // 5. ตั้งค่าลิงก์ LINE OA แยกตาม Channel (เอาลิงก์เพิ่มเพื่อนแบบติดแท็กของ LINE OA มาใส่)
+                    // 4. ตั้งค่าลิงก์ LINE OA แยกตาม Channel (เอาลิงก์เพิ่มเพื่อนแบบติดแท็กของ LINE OA มาใส่)
                     let lineOALink = "https://lin.ee/SCzqOUh"; // ลิงก์หลัก (Default) ในกรณีที่ไม่มีตัวเลือกตรงล็อก
                 
                     if (channel === "Test1") {
@@ -60,6 +47,20 @@
                     } else if (channel === "Test3") {
                         lineOALink = "https://lin.ee/ohefx1G";
                     }
+                    
+                    // 5. ยิงข้อมูลไปที่ Webhook ของ Make.com 
+                    // (เปลี่ยน URL ตรงนี้ให้เป็น Webhook ของคุณใน Make)
+                    await fetch('https://hook.eu1.make.com/26c8dgg1ywhamvyluktcjlogupqrdjxz', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: profile.userId,
+                            displayName: profile.displayName,
+                            pictureUrl: profile.pictureUrl,
+                            channel: channel,
+                            lineOALink: lineOALink
+                        })
+                    });
                 
                     // 6. ดีดลูกค้า (Redirect) ไปที่ลิงก์ LINE OA ของช่องทางนั้น ๆ ทันที
                     window.location.href = lineOALink;
