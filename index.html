@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <!-- ดึง SDK ของ LIFF มาใช้งาน -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body style="background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;">
+    
+    <div style="text-align: center; padding: 20px;">
+        <!-- แสดงอนิเมชั่นหมุนๆ สวยๆ ระหว่างรอ -->
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #06C755; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+        <p style="color: #374151; font-size: 16px; margin: 0;">กำลังบันทึกข้อมูลช่องทาง...</p>
+        <p style="color: #9CA3AF; font-size: 14px; margin-top: 5px;">และนำคุณเข้าสู่ห้องแชทโดยอัตโนมัติ</p>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        async function main() {
+            try {
+                // 1. ใส่รหัส LIFF ID ของคุณที่ได้มาจาก LINE Developers
+                await liff.init({ liffId: "2010154855-eo7ydm7p" }); 
+
+                if (liff.isLoggedIn()) {
+                    // 2. ดึงโปรไฟล์ลูกค้า
+                    const profile = await liff.getProfile();
+                    
+                    // 3. แกะค่า channel จาก URL (ถ้าไม่มีจะใส่เป็น Unknown)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const channel = urlParams.get('channel') || 'Unknown';
+
+                    // 4. ยิงข้อมูลไปที่ Webhook ของ Make.com 
+                    // (เปลี่ยน URL ตรงนี้ให้เป็น Webhook ของคุณใน Make)
+                    await fetch('https://hook.eu1.make.com/26c8dgg1ywhamvyluktcjlogupqrdjxz', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: profile.userId,
+                            displayName: profile.displayName,
+                            pictureUrl: profile.pictureUrl,
+                            channel: channel
+                        })
+                    });
+
+                    // 5. ส่งข้อมูลเสร็จแล้ว สั่งปิดหน้าจอ LIFF ทันที เพื่อกลับเข้าแชท LINE
+                    liff.closeWindow();
+                } else {
+                    // ถ้าเปิดนอกแอป LINE ให้บังคับล็อกอิน
+                    liff.login();
+                }
+            } catch (error) {
+                console.error("LIFF Error:", error);
+            }
+        }
+        main();
+    </script>
+</body>
+</html>
